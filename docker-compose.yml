@@ -38,7 +38,7 @@ services:
       - kafka-network
 
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0.3
+    image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
     command: start-dev
     restart: always
@@ -70,7 +70,7 @@ services:
       - kafka-network
 
   kafka:
-    image: confluentinc/cp-kafka:7.4.3
+    image: confluentinc/cp-kafka:latest
     container_name: kafka
     depends_on:
       - zookeeper
