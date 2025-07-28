@@ -1,3 +1,11 @@
+# postgres
+# keycloak-db
+# keycloak
+# zookeeper
+# kafka
+# kafka-ui
+# kafdrop
+
 services:
   postgres:
     image: postgres:latest
