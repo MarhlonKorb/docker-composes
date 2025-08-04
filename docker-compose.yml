@@ -7,7 +7,7 @@
 # kafdrop
 
 services:
-  postgres:
+  postgres-main:
     image: postgres:latest
     container_name: ${CONTAINER_NAME}
     restart: always
@@ -18,7 +18,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_main_data:/var/lib/postgresql/data
     networks:
       - kafka-network
 
@@ -55,6 +55,11 @@ services:
       KEYCLOAK_ADMIN_PASSWORD: admin-password
     networks:
       - kafka-network
+    healthcheck:
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -62,15 +67,16 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      ALLOW_ANONYMOUS_LOGIN: yes
     ports:
       - "2181:2181"
     volumes:
-      - zookeeper_data:/bitnami/zookeeper
+      - zookeeper_data:/var/lib/zookeeper
     networks:
       - kafka-network
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.4.3
     container_name: kafka
     depends_on:
       - zookeeper
@@ -89,6 +95,11 @@ services:
       - kafka_data:/var/lib/kafka/data
     networks:
       - kafka-network
+    healthcheck:
+      test: [ "CMD-SHELL", "nc -z localhost 9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -119,10 +130,12 @@ services:
       - kafka-network
 
 volumes:
-  postgres_data:
+  postgres_main_data:
+  postgres_uploader_data:
   kafka_data:
   zookeeper_data:
   keycloak_data:
+
 
 networks:
   kafka-network:
